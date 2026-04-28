@@ -1,0 +1,27 @@
+{
+  "name": "blue-sky-service-hub",
+  "version": "1.0.0",
+  "description": "A scalable full-stack platform for service management and workforce hiring, built using Next.js (Frontend), NestJS (Backend), and SQL (Prisma ORM).",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "build": "next build || nest build",
+    "lint:client": "cd client && npm run lint",
+    "lint:backend": "cd backend && npm run lint",
+    "lint": "npm run lint:client && npm run lint:backend"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Abiram-k/blue-sky-service-hub.git"
+  },
+  "author": "Abiram, Bibin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Abiram-k/blue-sky-service-hub/issues"
+  },
+  "homepage": "https://github.com/Abiram-k/blue-sky-service-hub#readme",
+  "devDependencies": {
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^16.2.4"
+  }
+}
