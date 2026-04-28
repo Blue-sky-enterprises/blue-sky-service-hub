@@ -20,7 +20,9 @@ async function bootstrap(): Promise<void> {
     SwaggerModule.setup('docs', app, document);
 
     await app.listen(appConfig.port);
+
+    await logRoutes(app);
+
     logStartup(appConfig.port);
-    logRoutes(app);
 }
 bootstrap();
