@@ -1,12 +1,13 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "target": "ES2021",
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "strict": true,
-    "emitDecoratorMetadata": true,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ES2022",
+    "esModuleInterop": true,
     "experimentalDecorators": true,
-    "skipLibCheck": true
+    "emitDecoratorMetadata": true,
+    "rootDir": "./src",  
+    "outDir": "./dist",
+    "types": ["node"]
   }
 }
