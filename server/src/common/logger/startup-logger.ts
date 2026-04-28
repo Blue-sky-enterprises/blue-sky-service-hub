@@ -39,7 +39,7 @@ const LOGO = [
  
 // ─── Startup Log ─────────────────────────────────────────────────────────────
  
- 
+
 export const logStartup = (port: number): void => {
   const now       = new Date();
   const timestamp = now.toLocaleString('en-US', {
