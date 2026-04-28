@@ -10,7 +10,8 @@
     "lint:fix": "eslint . --fix",
     "lint:watch": "nodemon --watch src --ext ts --exec \"eslint src --cache\"",
     "dev:server": "nest start --watch",
-    "start:dev": "concurrently \"npm run dev:server\" \"npm run lint:watch\""
+    "start:dev": "concurrently \"npm run dev:server\" \"npm run lint:watch\"",
+    "build": "nest build"
   },
   "author": "",
   "license": "ISC",
