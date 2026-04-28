@@ -1,9 +1,10 @@
-import 'dotenv/config';
 import { plainToInstance } from 'class-transformer';
 import { validateSync } from 'class-validator';
 import { EnvSchema } from './env.schema.js';
-const envInstance = plainToInstance(EnvSchema, process.env);
+import dotenv from 'dotenv';
 
+dotenv.config();
+const envInstance = plainToInstance(EnvSchema, process.env);
 const errors = validateSync(envInstance, {
     skipMissingProperties: false,
 });
