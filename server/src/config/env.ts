@@ -1,8 +1,8 @@
-import 'dotenv/config';
+import * as dotenv from 'dotenv';
 import { plainToInstance } from 'class-transformer';
 import { validateSync } from 'class-validator';
 import { EnvSchema } from './env.schema.js';
-
+dotenv.config();
 const envInstance = plainToInstance(EnvSchema, process.env);
 
 const errors = validateSync(envInstance, {
