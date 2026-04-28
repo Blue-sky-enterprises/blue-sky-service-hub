@@ -28,6 +28,15 @@ jobs:
         working-directory: ./server
         run: npm ci
 
+         - name: Create server .env
+        working-directory: ./server
+        run: |
+          echo "NODE_ENV=production" >> .env
+          echo "PORT=${{ secrets.PORT }}" >> .env
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+
+
       - name: Lint server
         working-directory: ./server
         run: npm run lint
@@ -46,6 +55,12 @@ jobs:
       - name: Install client dependencies
         working-directory: ./client
         run: npm ci
+
+        - name: Create client .env
+        working-directory: ./client
+        run: |
+          echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" >> .env
+
 
       - name: Lint client
         working-directory: ./client
