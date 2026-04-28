@@ -79,7 +79,7 @@ export default [
         "error",
         {
           "selector": "variable",
-          "format": ["camelCase"]
+          "format": ["camelCase", "UPPER_CASE"]
         },
         {
           "selector": "function",
@@ -106,6 +106,17 @@ export default [
           ]
         }
       ]
+    },
+  },
+  {
+    files: [
+      "src/common/logger/**/*.ts",
+      "src/config/**/*.ts"
+    ],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/explicit-function-return-type": "off",
+      "no-console": "off" 
     }
   }
 ];
