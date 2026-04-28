@@ -8,6 +8,7 @@
     "emitDecoratorMetadata": true,
     "rootDir": "./src",  
     "outDir": "./dist",
-    "types": ["node"]
+    "types": ["node"],
+    "skipLibCheck": true
   }
 }
