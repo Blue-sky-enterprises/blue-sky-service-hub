@@ -28,7 +28,7 @@ jobs:
         working-directory: ./server
         run: npm ci
 
-         - name: Create server .env
+      - name: Create server .env
         working-directory: ./server
         run: |
           echo "NODE_ENV=production" >> .env
@@ -56,7 +56,7 @@ jobs:
         working-directory: ./client
         run: npm ci
 
-        - name: Create client .env
+      - name: Create client .env
         working-directory: ./client
         run: |
           echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" >> .env
