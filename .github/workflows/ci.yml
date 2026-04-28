@@ -1,0 +1,89 @@
+name: "Full CI Pipeline (Lint + Test + CodeQL)"
+
+on:
+  push:
+    branches: ["main", "develop"]
+  pull_request:
+    branches: ["main", "develop"]
+
+jobs:
+  lint-test-build:
+    name: Lint + Test + Build (Client + Server)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # =========================
+      # SERVER SETUP
+      # =========================
+      - name: Install server dependencies
+        working-directory: ./server
+        run: npm ci
+
+      - name: Lint server
+        working-directory: ./server
+        run: npm run lint
+
+      - name: Test server
+        working-directory: ./server
+        run: echo "No server tests yet - skipping"
+
+      - name: Build server
+        working-directory: ./server
+        run: npm run build
+
+      # =========================
+      # CLIENT SETUP
+      # =========================
+      - name: Install client dependencies
+        working-directory: ./client
+        run: npm ci
+
+      - name: Lint client
+        working-directory: ./client
+        run: npm run lint
+
+      - name: Test client
+        working-directory: ./client
+        run: echo "No client tests yet - skipping"
+
+      - name: Build client
+        working-directory: ./client
+        run: npm run build
+
+  codeql:
+    name: CodeQL Security Scan
+    runs-on: ubuntu-latest
+
+    permissions:
+      security-events: write
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ["javascript-typescript"]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+
+      # IMPORTANT: build both areas (if needed)
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Analyze
+        uses: github/codeql-action/analyze@v3
