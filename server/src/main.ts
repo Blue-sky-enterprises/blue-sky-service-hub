@@ -1,10 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from "./app.module";
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { logStartup } from './common/logger/startup-logger';
 import { logRoutes } from './common/logger/route-logger';
 import { appConfig } from './config';
-import { apiReference } from '@scalar/nestjs-api-reference';
 import { setupApiDocs } from './config/api-docs.config';
 
 async function bootstrap(): Promise<void> {

@@ -26,7 +26,7 @@ Use Bearer token in the format:
   const document = SwaggerModule.createDocument(app, config, {
     deepScanRoutes: true,
   });
-
+  
   app.use(
     '/docs',
     apiReference({
@@ -34,4 +34,9 @@ Use Bearer token in the format:
       theme: 'purple',
     }),
   );
+
+   SwaggerModule.setup('docs', app, document, {
+    jsonDocumentUrl: 'docs-json',
+  });
+
 }
