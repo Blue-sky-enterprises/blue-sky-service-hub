@@ -7,13 +7,12 @@ import { PasswordStrength } from "@/app/features/auth/components/PasswordStrengt
 import { GoogleIcon } from "@/app/features/auth/components/GoogleIcon"
 import { Input } from "@/app/shared/ui/input"
 import { PasswordInput } from "./PasswordInput"
+import { useRouter } from "next/navigation"
 
 export const AuthForm = ({ mode }: { mode: "login" | "signup" }) => {
+    const router = useRouter()
 
     const isSignup = mode === "signup"
-
-    const [showPassword, setShowPassword] = useState(false)
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
     const [form, setForm] = useState({
         firstName: '',
@@ -111,6 +110,14 @@ export const AuthForm = ({ mode }: { mode: "login" | "signup" }) => {
                 className="bs-btn-primary w-full flex items-center justify-center gap-2"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
+                type="button"
+                onClick={() => {
+                    if (isSignup) {
+                        router.push("/auth/signup/otp")
+                    } else {
+                        router.push("/auth/login")
+                    }
+                }}
             >
                 {isSignup ? "Get Started" : "Login"}
                 <ArrowRight size={16} />
