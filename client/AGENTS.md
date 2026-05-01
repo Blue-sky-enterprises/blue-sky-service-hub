@@ -1,14 +1,14 @@
-# agents.md
 
 ## Project Overview
 
 This is a **Next.js (App Router) frontend application** using:
 
 * TypeScript
-* Tailwind CSS
+* Tailwind CSS (v4)
 * shadcn/ui
 * Feature-based architecture
 * OpenAPI-generated API client
+* Custom **Bluesky Design System**
 
 The architecture is adapted specifically for **Next.js App Router (no src folder)**.
 
@@ -30,33 +30,32 @@ The architecture is adapted specifically for **Next.js App Router (no src folder
 
 ## Project Structure (Next.js App Router)
 
-```id="h3k9ls"
+```bash
 app/
-├── (routes)/                # route groups (optional)
-│
-├── api-client/              # generated OpenAPI types & client
+├── (routes)/
+├── api-client/
 │   └── types.ts
 │
-├── providers.tsx            # global providers (React Query, Theme, etc.)
-├── layout.tsx               # root layout
-├── page.tsx                 # root page
+├── providers.tsx
+├── layout.tsx
+├── page.tsx
 │
-├── core/                    # global logic
-│   ├── api/                 # axios instance, base config
-│   ├── hooks/               # reusable hooks
+├── core/
+│   ├── api/
+│   ├── hooks/
 │   ├── utils/
 │   ├── constants/
 │   └── types/
 │
-├── features/                # domain-based modules
+├── features/
 │   ├── attendance/
 │   ├── clients/
 │   ├── employees/
 │   ├── auth/
 │
-├── shared/                  # reusable UI
-│   ├── ui/                  # shadcn components
-│   ├── layout/              # navbar, sidebar, etc.
+├── shared/
+│   ├── ui/          # shadcn components
+│   ├── layout/
 │   └── components/
 │
 ├── styles/
@@ -65,15 +64,49 @@ app/
 
 ---
 
+# ROUTING RULE (STRICT)
+
+## ALL ROUTES MUST FOLLOW THIS STRUCTURE
+app/(routes)/(feat)/<feature>/<sub-routes>
+
+---
+
+## RULES
+
+- All routes MUST be inside (routes) group
+- Feature-based routes MUST be inside (feat)
+- Sub-routes must belong to their feature domain
+- No routes allowed outside (routes)
+
+---
+
+## EXAMPLE ROUTES
+
+### AUTH
+app/(routes)/(auth)/login/page.tsx → /login  
+app/(routes)/(auth)/signup/page.tsx → /signup  
+
+---
+
+### DASHBOARD
+app/(routes)/(dashboard)/home/page.tsx → /home  
+
+---
+
+### FEATURES
+app/(routes)/(feat)/employees/page.tsx → /employees  
+app/(routes)/(feat)/clients/page.tsx → /clients  
+app/(routes)/(feat)/attendance/page.tsx → /attendance  
+
 ## Feature Structure
 
-```id="u9a2xm"
+```bash
 features/<feature>/
-├── api/           # API calls (uses api-client + axios)
-├── components/    # feature UI
-├── hooks/         # React Query hooks
-├── pages/         # route-level components
-├── store/         # zustand/redux state
+├── api/
+├── components/
+├── hooks/
+├── pages/
+├── store/
 └── types/
 ```
 
@@ -81,7 +114,7 @@ features/<feature>/
 
 # Architecture Rules (STRICT)
 
-## 1. Feature-Based Design
+## Feature-Based Design
 
 * All business logic MUST be inside `features/<feature>`
 * Features must be isolated
@@ -89,7 +122,7 @@ features/<feature>/
 
 ---
 
-## 2. Layer Responsibilities
+## Layer Responsibilities
 
 | Layer    | Responsibility             |
 | -------- | -------------------------- |
@@ -102,50 +135,49 @@ features/<feature>/
 
 # API Layer (IMPORTANT)
 
-## api-client (Generated)
+## api-client
 
-```id="d2m8qp"
+```bash
 app/api-client/
 ```
 
-* Contains OpenAPI-generated types
-* MUST NOT be modified manually
+* OpenAPI-generated
+* MUST NOT be modified
 
 ---
 
-## API Usage Pattern
+## API Rules
 
 * API calls must live in:
 
   ```
   features/<feature>/api/
   ```
-
-* Use:
-
-  * axios instance from `core/api`
-  * types from `api-client`
+* Use axios from `core/api`
+* Use types from `api-client`
 
 ---
 
 ## Example
 
-```ts id="m1z9xp"
+```ts
 import { api } from "@/app/core/api"
 import { paths } from "@/app/api-client/types"
 
 export const getEmployees = async () => {
-  return api.get<paths["/employees"]["get"]["responses"]["200"]["content"]["application/json"]>("/employees")
+  return api.get<
+    paths["/employees"]["get"]["responses"]["200"]["content"]["application/json"]
+  >("/employees")
 }
 ```
 
 ---
 
-# React Query Rules
+# React Query Rules (STRICT)
 
 ## Setup
 
-* Must be configured in:
+* Defined in:
 
   ```
   app/providers.tsx
@@ -153,19 +185,26 @@ export const getEmployees = async () => {
 
 ---
 
-## Usage
+## Rules
 
-* Hooks must be inside:
-
-  ```
-  features/<feature>/hooks/
-  ```
+* MUST use React Query for all server state
+* NEVER call API inside components
+* ALWAYS use hooks
 
 ---
 
-## Example
+## Hook Rules
 
-```ts id="x7r4cd"
+* One hook per file (MANDATORY)
+* Naming:
+
+  ```
+  use<Feature><Action>
+  ```
+
+### Example
+
+```ts
 export const useEmployees = () => {
   return useQuery({
     queryKey: ["employees"],
@@ -176,38 +215,32 @@ export const useEmployees = () => {
 
 ---
 
-## Rules
-
-* NEVER call API directly in components
-* ALWAYS use hooks
-* USE consistent query keys
-
----
-
 # Authentication
 
 ## Location
 
-* `features/auth/`
+```
+features/auth/
+```
 
 ---
 
 ## Rules
 
-* Store tokens securely (cookies preferred)
-* Use axios interceptors for auth handling
+* Use axios interceptors
 * Handle 401 globally
+* Prefer secure cookies
 
 ---
 
-## Interceptors
+## Interceptor Example
 
-```ts id="n3p8qs"
+```ts
 api.interceptors.response.use(
   res => res,
   async (error) => {
     if (error.response?.status === 401) {
-      // logout or refresh
+      // logout / refresh
     }
     return Promise.reject(error)
   }
@@ -216,39 +249,135 @@ api.interceptors.response.use(
 
 ---
 
-## Route Protection
+# UI & DESIGN SYSTEM (CRITICAL)
 
-* Use:
+## Bluesky Design System
 
-  * layout guards
-  * middleware (if needed)
+All UI must follow the **Bluesky Design System** defined in:
+
+```
+app/globals.css
+```
 
 ---
 
-# UI Rules (STRICT)
+## Design Tokens
 
-## Priority
+Use CSS variables (NO hardcoding).
 
-1. `shared/ui` (shadcn)
-2. `shared/components`
+### ✅ Correct
+
+```tsx
+<div className="bg-bs-card text-bs-primary border-bs shadow-bs" />
+```
+
+### ❌ Incorrect
+
+```tsx
+<div className="bg-white text-black" />
+```
+
+---
+
+## Utility Classes
+
+Use predefined utilities:
+
+* `bg-bs-*`
+* `text-bs-*`
+* `border-bs-*`
+* `shadow-bs-*`
+* `rounded-bs-*`
+
+---
+
+## Component Classes
+
+Reusable patterns:
+
+* `bs-card`
+* `bs-input`
+* `bs-btn-primary`
+* `bs-btn-ghost`
+* `bs-label`
+* `bs-divider`
+
+---
+
+## shadcn Rules
+
+Location:
+
+```
+app/shared/ui/
+```
+
+Rules:
+
+* DO NOT modify base components heavily
+* Extend via `className` + `cn()`
+* Always apply Bluesky tokens
+
+---
+
+## Example
+
+```tsx
+import { Button } from "@/app/shared/ui/button"
+
+<Button className="bg-bs-accent text-bs-on-accent shadow-bs-glow">
+  Submit
+</Button>
+```
+
+---
+
+## UI Priority
+
+1. shadcn components
+2. shared/components
 3. feature components
 
 ---
 
-## Rules
+## Dark Mode
 
-* Do NOT modify base shadcn components heavily
-* Extend via wrappers
-* Maintain design consistency
-* Support dark mode
+* Controlled via `next-themes`
+* Uses `.dark` class
+* DO NOT manually override styles
 
 ---
 
-# Styling
+## Typography
 
-* Tailwind CSS only
-* No inline styles
-* Follow spacing system
+* Headings → Syne
+* Body → DM Sans
+
+---
+
+## Animations
+
+Use predefined:
+
+* `animate-fade-up`
+* `animate-pulse-glow`
+
+---
+
+## UI Restrictions (STRICT)
+
+### MUST
+
+* Use Bluesky tokens
+* Use shadcn components
+* Use `cn()`
+
+### MUST NOT
+
+* Hardcode colors
+* Use random Tailwind values
+* Inline styles
+* Duplicate UI patterns
 
 ---
 
@@ -256,13 +385,13 @@ api.interceptors.response.use(
 
 ## Feature State
 
-```id="j4k2bn"
+```
 features/<feature>/store/
 ```
 
 ## Global State
 
-```id="p9d1fk"
+```
 app/store.ts (only if necessary)
 ```
 
@@ -272,20 +401,20 @@ app/store.ts (only if necessary)
 
 ## Default
 
-* Use Server Components
+* Server Components
 
-## Use "use client" ONLY when:
+## Use `"use client"` ONLY when:
 
 * using hooks
 * handling events
-* managing state
+* local state
 
 ---
 
 # Performance Rules
 
 * Prefer server components
-* Lazy load heavy components
+* Lazy load heavy UI
 * Avoid unnecessary re-renders
 
 ---
@@ -311,13 +440,13 @@ app/store.ts (only if necessary)
 
 ## Avoid
 
-* cross-feature imports ❌
+* cross-feature ❌
 
 ---
 
 # Commands
 
-```id="q8w2zx"
+```bash
 npm run start:dev
 npm run build
 npm run start
@@ -334,7 +463,7 @@ Agents MAY:
 * Create features
 * Add API integrations
 * Build reusable components
-* Refactor for performance
+* Improve performance
 
 ---
 
@@ -343,28 +472,28 @@ Agents MAY:
 Agents MUST NOT:
 
 * Break feature boundaries
-* Call APIs inside components
-* Modify generated api-client
-* Add unnecessary dependencies
+* Call APIs in components
+* Modify api-client
+* Add unnecessary deps
 * Mix business logic into UI
 
 ---
 
 # Best Practices
 
-* Keep features independent
+* Keep features isolated
 * Use typed APIs
 * Extract logic into hooks
-* Maintain consistent structure
-* Prefer readability over shortcuts
+* Follow design system strictly
+* Prefer clarity over shortcuts
 
 ---
 
 # Final Notes
 
-* This is a **scalable frontend architecture**
-* Designed to align with backend modular structure
-* Maintain strict separation of concerns
-* Follow patterns consistently
+* This is a **scalable architecture**
+* Designed for long-term maintainability
+* Enforces strict separation of concerns
+* UI must follow the design system consistently
 
 ---
