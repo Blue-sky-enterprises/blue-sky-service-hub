@@ -3,6 +3,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { ThemeProvider } from "next-themes"
 import { useState, useEffect } from "react"
+import { ThemeTransitionProvider } from "./shared/components/ThemeTransition"
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false)
@@ -33,7 +34,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
         enableSystem
         disableTransitionOnChange
       >
-        {children}
+        <ThemeTransitionProvider>
+          {children}
+        </ThemeTransitionProvider>
       </ThemeProvider>
     </QueryClientProvider>
   )
