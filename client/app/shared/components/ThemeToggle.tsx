@@ -1,13 +1,37 @@
+"use client"
+
+import { useTheme } from "next-themes"
+import { motion, AnimatePresence } from "framer-motion"
+import { Sun, Moon } from "lucide-react"
+
 export const ThemeToggle = () => {
+    const { theme, setTheme } = useTheme()
+
+    const isDark = theme === "dark"
+
     return (
         <button
-            className="absolute top-5 right-5 p-2 rounded-bs-sm border transition-colors"
-            style={{ background: 'var(--bs-bg-input)', borderColor: 'var(--bs-border)', color: 'var(--bs-text-muted)' }}
-            title="Toggle theme">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <circle cx="12" cy="12" r="5" />
-                <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
-            </svg>
+            onClick={() => setTheme(isDark ? "light" : "dark")}
+            className="
+        absolute top-5 right-5
+        p-2 rounded-bs-sm
+        border transition-all duration-200
+        bg-bs-bg border-bs-border text-bs-primary
+        hover:scale-105 hover:border-bs-accent
+      "
+            title="Toggle theme"
+        >
+            <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                    key={isDark ? "dark" : "light"}
+                    initial={{ opacity: 0, rotate: -90, scale: 0.8 }}
+                    animate={{ opacity: 1, rotate: 0, scale: 1 }}
+                    exit={{ opacity: 0, rotate: 90, scale: 0.8 }}
+                    transition={{ duration: 0.25, ease: "easeOut" }}
+                >
+                    {isDark ? <Moon size={16} /> : <Sun size={16} />}
+                </motion.div>
+            </AnimatePresence>
         </button>
     )
 }

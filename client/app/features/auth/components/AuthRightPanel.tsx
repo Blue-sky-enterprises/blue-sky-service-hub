@@ -1,8 +1,10 @@
+"use client"
 
 import { ThemeToggle } from "@/app/shared/components"
 import { AuthHeader } from "./AuthHeader"
 import { AuthForm } from "./AuthForm"
 import { AuthFooter } from "./AuthFooter"
+import { motion, AnimatePresence } from "framer-motion"
 
 export const AuthRightPanel = ({ mode }: { mode: "login" | "signup" }) => {
     return (
@@ -11,9 +13,21 @@ export const AuthRightPanel = ({ mode }: { mode: "login" | "signup" }) => {
             <ThemeToggle />
 
             <div className="w-full max-w-[440px]">
-                <AuthHeader mode={mode} />
-                <AuthForm mode={mode} />
-                <AuthFooter mode={mode} />
+                <AnimatePresence mode="wait">
+
+                    <motion.div
+                        key={mode}
+                        initial={{ opacity: 0, y: 12, scale: 0.98 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -12, scale: 0.98 }}
+                        transition={{ duration: 0.25, ease: "linear" }}
+                    >
+                        <AuthHeader mode={mode} />
+                        <AuthForm mode={mode} />
+                        <AuthFooter mode={mode} />
+                    </motion.div>
+
+                </AnimatePresence>
             </div>
         </div>
     )
