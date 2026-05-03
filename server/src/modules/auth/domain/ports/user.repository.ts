@@ -7,7 +7,7 @@ import { User } from "../entities/user.entity";
  * In hexagonal architecture, this is an "Output Port" that the
  * infrastructure layer must implement.
  */
-export interface UserRepository {
+export interface IUserRepository {
     /**
      * Persists a new user to the storage.
      * @param user - The User domain entity to create

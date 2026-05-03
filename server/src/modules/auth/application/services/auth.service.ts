@@ -1,7 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { RegisterUserUseCase } from "../useCases/register.user";
-import { RegisterDto } from "../dto/request/register.dto";
-import { UserResponseDto } from "../dto/response/user.response.dto";
+import { RegisterUserUseCase, LoginUseCase, RegisterDto, LoginDto, UserResponseDto } from "../";
 
 /**
  * AuthService (Application Service).
@@ -13,6 +11,7 @@ import { UserResponseDto } from "../dto/response/user.response.dto";
 export class AuthService {
     constructor(
         private registerUseCase: RegisterUserUseCase,
+        private loginUseCase: LoginUseCase,
     ) { }
 
     /**
@@ -20,5 +19,12 @@ export class AuthService {
      */
     async register(register: RegisterDto): Promise<UserResponseDto> {
         return this.registerUseCase.execute(register);
+    }
+
+    /**
+     * Proxies the login request to the specialized use case.
+     */
+    async login(login: LoginDto): Promise<UserResponseDto> {
+        return this.loginUseCase.execute(login);
     }
 }

@@ -21,4 +21,5 @@ enum Role {
   ADMIN
   MANAGER
   EMPLOYEE
+  SUPERVISOR
 }

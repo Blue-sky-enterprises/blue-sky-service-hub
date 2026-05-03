@@ -1,8 +1,8 @@
 import { Module } from "@nestjs/common";
-import { AuthController } from "./presentation/auth.controller";
-import { PrismaUserRepository } from "./infrastructure/persistence/prisma/user.repository";
-import { RegisterUserUseCase } from "./application/useCases/register.user";
-import { AuthService } from "./application/services/auth.service";
+import { AuthController } from "./presentation";
+import { UserRepository } from "./infrastructure";
+import { RegisterUserUseCase, LoginUseCase } from "./application";
+import { AuthService } from "./application";
 
 /**
  * AuthModule.
@@ -16,17 +16,19 @@ import { AuthService } from "./application/services/auth.service";
 @Module({
     controllers: [AuthController],
     providers: [
-        PrismaUserRepository,
+        UserRepository,
         AuthService,
         {
-            /**
-             * We provide the UseCase as an injectable class, but 
-             * manually inject the Prisma repository implementation.
-             */
             provide: RegisterUserUseCase,
-            useFactory: (repo: PrismaUserRepository): RegisterUserUseCase =>
+            useFactory: (repo: UserRepository): RegisterUserUseCase =>
                 new RegisterUserUseCase(repo),
-            inject: [PrismaUserRepository],
+            inject: [UserRepository],
+        },
+        {
+            provide: LoginUseCase,
+            useFactory: (repo: UserRepository): LoginUseCase =>
+                new LoginUseCase(repo),
+            inject: [UserRepository],
         },
     ],
 })

@@ -1,4 +1,4 @@
-import { Role } from "@prisma/client";
+import { Role } from "../../../domain";
 import { ApiProperty } from "@nestjs/swagger";
 
 /**

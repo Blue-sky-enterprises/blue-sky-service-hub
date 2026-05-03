@@ -1,7 +1,6 @@
-import { Controller, Post, Body } from "@nestjs/common";
-import { AuthService } from "../application/services/auth.service";
-import { RegisterDto } from "../application/dto/request/register.dto";
-import { UserResponseDto } from "../application/dto/response/user.response.dto";
+import { Controller, Post, Body, HttpCode, HttpStatus } from "@nestjs/common";
+import { AuthService } from "../application";
+import { RegisterDto, LoginDto, UserResponseDto } from "../application";
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from "@nestjs/swagger";
 
 /**
@@ -31,5 +30,23 @@ export class AuthController {
     @ApiResponse({ status: 409, description: "Conflict - User already exists." })
     async register(@Body() body: RegisterDto): Promise<UserResponseDto> {
         return this.authService.register(body);
+    }
+
+    /**
+     * POST /api/auth/login
+     * Authenticates a user and returns their profile.
+     */
+    @Post("login")
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: "Authenticate user" })
+    @ApiBody({ type: LoginDto })
+    @ApiResponse({ 
+        status: 200, 
+        description: "User successfully authenticated.",
+        type: UserResponseDto 
+    })
+    @ApiResponse({ status: 401, description: "Unauthorized - Invalid credentials." })
+    async login(@Body() body: LoginDto): Promise<UserResponseDto> {
+        return this.authService.login(body);
     }
 }

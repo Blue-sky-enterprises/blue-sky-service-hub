@@ -1,4 +1,4 @@
-import { Role } from "@prisma/client";
+import { Role } from "../enums/role.enum";
 
 /**
  * User Domain Entity.
@@ -27,7 +27,7 @@ export class User {
         public email: string,
         public password: string,
         public role: Role,
-        public readonly createdAt: Date,
-        public readonly updatedAt: Date,
+        public createdAt: Date,
+        public updatedAt: Date,
     ) { }
 }

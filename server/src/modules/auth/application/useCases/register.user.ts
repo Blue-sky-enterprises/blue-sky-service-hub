@@ -1,9 +1,6 @@
-import { UserRepository } from "../../domain/ports/user.repository";
+import { IUserRepository, User, UserAlreadyExistsException, Role } from "../../domain";
+import { RegisterDto, UserResponseDto, AuthMapper } from "../";
 import * as bcrypt from "bcrypt";
-import { RegisterDto } from "../dto/request/register.dto";
-import { UserResponseDto } from "../dto/response/user.response.dto";
-import { User } from "../../domain/entities/user.entity";
-import { Role } from "@prisma/client";
 
 /**
  * RegisterUserUseCase.
@@ -17,7 +14,7 @@ import { Role } from "@prisma/client";
  * 4. Persist the user via the repository port.
  */
 export class RegisterUserUseCase {
-    constructor(private userRepo: UserRepository) { }
+    constructor(private userRepo: IUserRepository) { }
 
     /**
      * Executes the registration logic.
@@ -30,7 +27,7 @@ export class RegisterUserUseCase {
         // 1. Business Rule: Email must be unique
         const existing = await this.userRepo.findByEmail(register.email);
         if (existing) {
-            throw new Error("User already exists");
+            throw new UserAlreadyExistsException();
         }
 
         // 2. Security: Hash password before storage
@@ -49,21 +46,6 @@ export class RegisterUserUseCase {
         ));
 
         // 4. Return DTO
-        return this.mapToResponse(user);
-    }
-
-    /**
-     * Maps the User domain entity to a UserResponseDto.
-     */
-    private mapToResponse(user: User): UserResponseDto {
-        const dto = new UserResponseDto();
-        dto.id = user.id;
-        dto.firstName = user.firstName;
-        dto.lastName = user.lastName;
-        dto.email = user.email;
-        dto.role = user.role;
-        dto.createdAt = user.createdAt;
-        dto.updatedAt = user.updatedAt;
-        return dto;
+        return AuthMapper.toResponse(user);
     }
 }
