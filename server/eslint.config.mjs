@@ -94,15 +94,27 @@ export default [
       /**
        * Architecture enforcement rules
        */
-      "boundaries/element-types": [
+      "boundaries/dependencies": [
         "error",
         {
           default: "disallow",
           rules: [
-            { from: "domain", allow: [] },
-            { from: "application", allow: ["domain"] },
-            { from: "infrastructure", allow: ["domain", "application"] },
-            { from: "presentation", allow: ["application"] }
+            {
+              from: { type: "domain" },
+              allow: [{ to: { type: "domain" } }]
+            },
+            {
+              from: { type: "application" },
+              allow: [{ to: { type: "domain" } }]
+            },
+            {
+              from: { type: "infrastructure" },
+              allow: [{ to: { type: "domain" } }, { to: { type: "application" } }]
+            },
+            {
+              from: { type: "presentation" },
+              allow: [{ to: { type: "application" } }]
+            }
           ]
         }
       ]
@@ -116,7 +128,7 @@ export default [
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/explicit-function-return-type": "off",
-      "no-console": "off" 
+      "no-console": "off"
     }
   }
 ];
