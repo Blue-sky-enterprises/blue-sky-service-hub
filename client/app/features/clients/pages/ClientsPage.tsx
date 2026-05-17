@@ -3,7 +3,7 @@ import { useClients } from '../hooks';
 import { ClientsList } from '../components';
 
 export const ClientsPage = () => {
-  const { data, isLoading, error } = useClients();
+  const { isLoading, error } = useClients();
   
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error loading data</div>;

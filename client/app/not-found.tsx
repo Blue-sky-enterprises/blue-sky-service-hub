@@ -17,15 +17,26 @@ const SERVICE_ICONS = [
 
 /* ─── Particle dot ─── */
 function Particle({ delay }: { delay: number }) {
-    const size = Math.random() * 3 + 1
-    const startX = `${Math.random() * 100}%`
-    const startY = `${Math.random() * 100}%`
+    const [style, setStyle] = useState<{ size: number; startX: string; startY: string; duration: number } | null>(null)
+
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setStyle({
+            size: Math.random() * 3 + 1,
+            startX: `${Math.random() * 100}%`,
+            startY: `${Math.random() * 100}%`,
+            duration: 4 + Math.random() * 3
+        })
+    }, [])
+
+    if (!style) return null
+
     return (
         <motion.div
             className="absolute rounded-full pointer-events-none"
-            style={{ width: size, height: size, left: startX, top: startY, background: 'rgba(124,92,252,0.6)' }}
+            style={{ width: style.size, height: style.size, left: style.startX, top: style.startY, background: 'rgba(124,92,252,0.6)' }}
             animate={{ y: [0, -40, 0], opacity: [0, 0.7, 0] }}
-            transition={{ duration: 4 + Math.random() * 3, delay, repeat: Infinity, ease: 'easeInOut' }}
+            transition={{ duration: style.duration, delay, repeat: Infinity, ease: 'easeInOut' }}
         />
     )
 }
@@ -269,7 +280,7 @@ export default function NotFound() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.7, delay: 0.72, ease: [0.16, 1, 0.3, 1] }}
                 >
-                    Our team couldn't locate what you're looking for. The page may have moved or been reassigned.
+                    {"Our team couldn't locate what you're looking for. The page may have moved or been reassigned."}
                 </motion.p>
 
                 {/* Service tags */}

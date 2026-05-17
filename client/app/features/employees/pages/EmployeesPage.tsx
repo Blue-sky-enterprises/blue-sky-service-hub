@@ -3,7 +3,7 @@ import { useEmployees } from '../hooks';
 import { EmployeesList } from '../components';
 
 export const EmployeesPage = () => {
-  const { data, isLoading, error } = useEmployees();
+  const { isLoading, error } = useEmployees();
   
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error loading data</div>;

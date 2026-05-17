@@ -3,7 +3,7 @@ import { useAttendance } from '../hooks';
 import { AttendanceList } from '../components';
 
 export const AttendancePage = () => {
-  const { data, isLoading, error } = useAttendance();
+  const { isLoading, error } = useAttendance();
   
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error loading data</div>;

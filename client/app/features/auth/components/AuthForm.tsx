@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { ArrowRight, KeyRound } from "lucide-react"
+import { ArrowRight } from "lucide-react"
 import { GoogleIcon } from "@/app/features/auth/components/GoogleIcon"
 import { Input } from "@/app/shared/ui/input"
 import { PasswordInput } from "./PasswordInput"
@@ -22,17 +22,11 @@ export const AuthForm = ({ mode }: { mode: "login" | "signup" }) => {
 
     const isSignup = mode === "signup"
 
-    useEffect(() => {
-        const emailParam = searchParams.get("email")
-        if (emailParam) {
-            setForm(prev => ({ ...prev, email: decodeURIComponent(emailParam) }))
-        }
-    }, [searchParams])
-
+    const emailParam = searchParams.get("email")
     const [form, setForm] = useState({
         firstName: '',
         lastName: '',
-        email: '',
+        email: emailParam ? decodeURIComponent(emailParam) : '',
         password: '',
         confirmPassword: '',
         otp: ''
@@ -90,8 +84,9 @@ export const AuthForm = ({ mode }: { mode: "login" | "signup" }) => {
                     setBackendOtp(data.otp)
                     setIsOtpOpen(true)
                 },
-                onError: (err: any) => {
-                    const rawMessage = err.response?.data?.message || err.message || "An error occurred";
+                onError: (err) => {
+                    const errorWithResponse = err as Error & { response?: { data?: { message?: string | string[] } } };
+                    const rawMessage = errorWithResponse.response?.data?.message || err.message || "An error occurred";
                     const formattedMessage = Array.isArray(rawMessage) ? rawMessage.join(", ") : rawMessage;
                     setError(formattedMessage)
                     setModal({
@@ -112,8 +107,9 @@ export const AuthForm = ({ mode }: { mode: "login" | "signup" }) => {
                     setAuth(data.user, data.accessToken)
                     router.push("/") // Redirect to dashboard or home
                 },
-                onError: (err: any) => {
-                    const rawMessage = err.response?.data?.message || err.message || "An error occurred";
+                onError: (err) => {
+                    const errorWithResponse = err as Error & { response?: { data?: { message?: string | string[] } } };
+                    const rawMessage = errorWithResponse.response?.data?.message || err.message || "An error occurred";
                     const formattedMessage = Array.isArray(rawMessage) ? rawMessage.join(", ") : rawMessage;
                     setError(formattedMessage)
                     setModal({
@@ -137,8 +133,9 @@ export const AuthForm = ({ mode }: { mode: "login" | "signup" }) => {
                 setIsOtpOpen(false)
                 setIsSuccessOpen(true)
             },
-            onError: (err: any) => {
-                const rawMessage = err.response?.data?.message || err.message || "Verification failed";
+            onError: (err) => {
+                const errorWithResponse = err as Error & { response?: { data?: { message?: string | string[] } } };
+                const rawMessage = errorWithResponse.response?.data?.message || err.message || "Verification failed";
                 const formattedMessage = Array.isArray(rawMessage) ? rawMessage.join(", ") : rawMessage;
                 setOtpError(formattedMessage)
             }

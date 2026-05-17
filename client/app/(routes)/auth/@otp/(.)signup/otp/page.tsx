@@ -10,7 +10,7 @@ export default function Page() {
         router.back()
     }
 
-    const handleVerify = (otp: string) => {
+    const handleVerify = () => {
         router.push("/auth/signup/otpSuccess")
     }
 

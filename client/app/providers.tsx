@@ -1,7 +1,7 @@
 "use client"
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { ThemeProvider } from "next-themes"
+
 import { useState, useEffect } from "react"
 import { ThemeTransitionProvider } from "./shared/components/ThemeTransition"
 
@@ -21,6 +21,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   )
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true)
   }, [])
 
