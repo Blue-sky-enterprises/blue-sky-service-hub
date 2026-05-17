@@ -5,8 +5,8 @@ import { AttendanceList } from '../components';
 export const AttendancePage = () => {
   const { isLoading, error } = useAttendance();
   
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error loading data</div>;
+  // if (isLoading) return <div>Loading...</div>;
+  // if (error) return <div>Error loading data</div>;
 
   return (
     <div>

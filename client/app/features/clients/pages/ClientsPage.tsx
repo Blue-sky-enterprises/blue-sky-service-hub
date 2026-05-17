@@ -5,8 +5,8 @@ import { ClientsList } from '../components';
 export const ClientsPage = () => {
   const { isLoading, error } = useClients();
   
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error loading data</div>;
+  // if (isLoading) return <div>Loading...</div>;
+  // if (error) return <div>Error loading data</div>;
 
   return (
     <div>
