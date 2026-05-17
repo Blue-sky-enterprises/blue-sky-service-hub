@@ -1,5 +1,7 @@
 import { IUserRepository, User, InvalidCredentialsException } from "../../domain";
-import { LoginDto, UserResponseDto, AuthMapper } from "../";
+import { LoginDto } from "../dto/request";
+import { UserResponseDto } from "../dto/response";
+import { AuthMapper } from "../mappers";
 import * as bcrypt from "bcrypt";
 
 /**

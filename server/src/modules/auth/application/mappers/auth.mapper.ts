@@ -1,5 +1,5 @@
 import { User } from "../../domain";
-import { UserResponseDto } from "../";
+import { UserResponseDto } from "../dto/response";
 
 /**
  * AuthMapper.

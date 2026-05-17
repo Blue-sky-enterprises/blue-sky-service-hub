@@ -1,5 +1,7 @@
 import { Injectable } from "@nestjs/common";
-import { RegisterUserUseCase, LoginUseCase, RegisterDto, LoginDto, UserResponseDto } from "../";
+import { RegisterDto, LoginDto } from "../dto/request";
+import { UserResponseDto } from "../dto/response";
+import { RegisterUserUseCase, LoginUseCase } from "../useCases";
 
 /**
  * AuthService (Application Service).

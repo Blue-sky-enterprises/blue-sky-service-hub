@@ -1,5 +1,7 @@
 import { IUserRepository, User, UserAlreadyExistsException, Role } from "../../domain";
-import { RegisterDto, UserResponseDto, AuthMapper } from "../";
+import { RegisterDto } from "../dto/request";
+import { UserResponseDto } from "../dto/response";
+import { AuthMapper } from "../mappers";
 import * as bcrypt from "bcrypt";
 
 /**
