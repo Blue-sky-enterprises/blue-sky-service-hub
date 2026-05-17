@@ -35,6 +35,11 @@ export class RegisterUserUseCase {
         // 2. Security: Hash password before storage
         const hashedPassword = await bcrypt.hash(register.password, 10);
 
+        // Generate a 6-digit OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const otpExpiresAt = new Date();
+        otpExpiresAt.setMinutes(otpExpiresAt.getMinutes() + 10);
+
         // 3. Domain Logic: Create the entity
         const user = await this.userRepo.create(new User(
             crypto.randomUUID(),
@@ -45,7 +50,13 @@ export class RegisterUserUseCase {
             Role.EMPLOYEE, // Default role for new registrations
             new Date(),
             new Date(),
+            false, // isVerified
+            otp,
+            otpExpiresAt,
+            null // googleId
         ));
+
+        console.log(`\n[MOCK EMAIL] OTP for ${register.email} is: ${otp}\n`);
 
         // 4. Return DTO
         return AuthMapper.toResponse(user);

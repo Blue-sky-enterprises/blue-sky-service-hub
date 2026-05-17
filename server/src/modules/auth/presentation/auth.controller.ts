@@ -1,7 +1,9 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from "@nestjs/common";
+import { Controller, Post, Body, HttpCode, HttpStatus, Get, UseGuards, Req, Res } from "@nestjs/common";
+import { AuthGuard } from "@nestjs/passport";
 import { AuthService } from "../application";
-import { RegisterDto, LoginDto, UserResponseDto } from "../application";
+import { RegisterDto, LoginDto, VerifyOtpDto, UserResponseDto, AuthResponseDto } from "../application";
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from "@nestjs/swagger";
+import { env } from "../../../config/env";
 
 /**
  * AuthController (Presentation Layer).
@@ -33,6 +35,24 @@ export class AuthController {
     }
 
     /**
+     * POST /api/auth/verify-otp
+     * Verifies the OTP sent to user email.
+     */
+    @Post("verify-otp")
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: "Verify OTP for user registration" })
+    @ApiBody({ type: VerifyOtpDto })
+    @ApiResponse({ 
+        status: 200, 
+        description: "User successfully verified.",
+        type: UserResponseDto 
+    })
+    @ApiResponse({ status: 400, description: "Bad Request - Invalid OTP." })
+    async verifyOtp(@Body() body: VerifyOtpDto): Promise<UserResponseDto> {
+        return this.authService.verifyOtp(body);
+    }
+
+    /**
      * POST /api/auth/login
      * Authenticates a user and returns their profile.
      */
@@ -43,10 +63,34 @@ export class AuthController {
     @ApiResponse({ 
         status: 200, 
         description: "User successfully authenticated.",
-        type: UserResponseDto 
+        type: AuthResponseDto 
     })
     @ApiResponse({ status: 401, description: "Unauthorized - Invalid credentials." })
-    async login(@Body() body: LoginDto): Promise<UserResponseDto> {
+    async login(@Body() body: LoginDto): Promise<AuthResponseDto> {
         return this.authService.login(body);
+    }
+
+    /**
+     * GET /api/auth/google
+     * Initiates Google OAuth flow.
+     */
+    @Get("google")
+    @UseGuards(AuthGuard("google"))
+    @ApiOperation({ summary: "Initiate Google OAuth" })
+    async googleAuth() {
+        // Handled by Passport
+    }
+
+    /**
+     * GET /api/auth/google/callback
+     * Callback for Google OAuth.
+     */
+    @Get("google/callback")
+    @UseGuards(AuthGuard("google"))
+    @ApiOperation({ summary: "Google OAuth callback" })
+    async googleAuthRedirect(@Req() req: any, @Res() res: any) {
+        const result = await this.authService.googleLogin(req.user);
+        // Redirect to frontend with token
+        res.redirect(`${env.CLIENT_URL}/auth/login?token=${result.accessToken}`);
     }
 }

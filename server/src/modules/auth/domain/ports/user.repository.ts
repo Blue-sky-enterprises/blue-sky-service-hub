@@ -28,4 +28,5 @@ export interface IUserRepository {
      * @returns The User entity if found, otherwise null
      */
     findById(id: string): Promise<User | null>;
+    update(user: User): Promise<User>;
 }

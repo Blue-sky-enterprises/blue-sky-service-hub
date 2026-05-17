@@ -22,6 +22,10 @@ export class UserMapper {
             prismaUser.role as unknown as DomainRole,
             prismaUser.createdAt,
             prismaUser.updatedAt,
+            prismaUser.isVerified,
+            prismaUser.otp,
+            prismaUser.otpExpiresAt,
+            prismaUser.googleId
         );
     }
 
@@ -39,6 +43,10 @@ export class UserMapper {
             role: user.role as unknown as PrismaRole,
             createdAt: user.createdAt,
             updatedAt: user.updatedAt,
+            isVerified: user.isVerified,
+            otp: user.otp,
+            otpExpiresAt: user.otpExpiresAt,
+            googleId: user.googleId
         };
     }
 }

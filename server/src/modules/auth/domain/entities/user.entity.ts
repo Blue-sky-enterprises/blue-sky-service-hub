@@ -25,9 +25,13 @@ export class User {
         public firstName: string,
         public lastName: string,
         public email: string,
-        public password: string,
+        public password: string | null,
         public role: Role,
         public createdAt: Date,
         public updatedAt: Date,
+        public isVerified: boolean = false,
+        public otp: string | null = null,
+        public otpExpiresAt: Date | null = null,
+        public googleId: string | null = null,
     ) { }
 }

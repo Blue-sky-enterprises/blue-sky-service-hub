@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
-import { RegisterDto, LoginDto } from "../dto/request";
-import { UserResponseDto } from "../dto/response";
-import { RegisterUserUseCase, LoginUseCase } from "../useCases";
+import { RegisterDto, LoginDto, VerifyOtpDto } from "../dto/request";
+import { UserResponseDto, AuthResponseDto } from "../dto/response";
+import { RegisterUserUseCase, LoginUseCase, VerifyOtpUseCase, GoogleAuthUseCase } from "../useCases";
 
 /**
  * AuthService (Application Service).
@@ -14,6 +14,8 @@ export class AuthService {
     constructor(
         private registerUseCase: RegisterUserUseCase,
         private loginUseCase: LoginUseCase,
+        private verifyOtpUseCase: VerifyOtpUseCase,
+        private googleAuthUseCase: GoogleAuthUseCase,
     ) { }
 
     /**
@@ -26,7 +28,21 @@ export class AuthService {
     /**
      * Proxies the login request to the specialized use case.
      */
-    async login(login: LoginDto): Promise<UserResponseDto> {
+    async login(login: LoginDto): Promise<AuthResponseDto> {
         return this.loginUseCase.execute(login);
+    }
+
+    /**
+     * Proxies the OTP verification request to the specialized use case.
+     */
+    async verifyOtp(verifyOtp: VerifyOtpDto): Promise<UserResponseDto> {
+        return this.verifyOtpUseCase.execute(verifyOtp);
+    }
+
+    /**
+     * Proxies the Google Auth request to the specialized use case.
+     */
+    async googleLogin(profile: any): Promise<AuthResponseDto> {
+        return this.googleAuthUseCase.execute(profile);
     }
 }
