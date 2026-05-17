@@ -7,11 +7,11 @@ import { GoogleIcon } from "@/app/features/auth/components/GoogleIcon"
 import { Input } from "@/app/shared/ui/input"
 import { PasswordInput } from "./PasswordInput"
 import { useRouter, useSearchParams } from "next/navigation"
-import axios from "axios"
 import { useAuthStore } from "@/app/store/authStore"
 import { ResponseModal } from "@/app/shared/components"
 import { OtpModal } from "./OtpModal"
 import { OtpSuccessModal } from "./OtpSuccessModal"
+import { useRegister, useLogin, useVerifyOtp } from "../hooks"
 
 const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/auth`;
 
@@ -42,7 +42,12 @@ export const AuthForm = ({ mode }: { mode: "login" | "signup" }) => {
     const [isSuccessOpen, setIsSuccessOpen] = useState(false)
     const [backendOtp, setBackendOtp] = useState("")
     const [otpError, setOtpError] = useState("")
-    const [loading, setLoading] = useState(false)
+
+    const registerMutation = useRegister()
+    const loginMutation = useLogin()
+    const verifyOtpMutation = useVerifyOtp()
+
+    const loading = registerMutation.isPending || loginMutation.isPending || verifyOtpMutation.isPending
     
     // We keep error for small inline errors, but use modal for main responses
     const [error, setError] = useState("")
@@ -61,64 +66,83 @@ export const AuthForm = ({ mode }: { mode: "login" | "signup" }) => {
 
     const handleSubmit = async () => {
         setError("")
-        setLoading(true)
 
-        try {
-            if (isSignup) {
-                // Register
-                if (form.password !== form.confirmPassword) {
-                    throw new Error("Passwords do not match")
-                }
-                const res = await axios.post(`${API_URL}/register`, {
-                    firstName: form.firstName,
-                    lastName: form.lastName,
-                    email: form.email,
-                    password: form.password
+        if (isSignup) {
+            // Register
+            if (form.password !== form.confirmPassword) {
+                setError("Passwords do not match")
+                setModal({
+                    isOpen: true,
+                    title: "Error",
+                    message: "Passwords do not match",
+                    type: "error"
                 })
-                console.log("Registration response data:", res.data)
-                setBackendOtp(res.data.otp)
-                setIsOtpOpen(true)
-            } else {
-                // Login
-                const res = await axios.post(`${API_URL}/login`, {
-                    email: form.email,
-                    password: form.password
-                })
-                setAuth(res.data.user, res.data.accessToken)
-                router.push("/") // Redirect to dashboard or home
+                return
             }
-        } catch (err: any) {
-            const rawMessage = err.response?.data?.message || err.message || "An error occurred";
-            const formattedMessage = Array.isArray(rawMessage) ? rawMessage.join(", ") : rawMessage;
-            setError(formattedMessage)
-            setModal({
-                isOpen: true,
-                title: "Error",
-                message: formattedMessage,
-                type: "error"
+            registerMutation.mutate({
+                firstName: form.firstName,
+                lastName: form.lastName,
+                email: form.email,
+                password: form.password
+            }, {
+                onSuccess: (data) => {
+                    console.log("Registration response data:", data)
+                    setBackendOtp(data.otp)
+                    setIsOtpOpen(true)
+                },
+                onError: (err: any) => {
+                    const rawMessage = err.response?.data?.message || err.message || "An error occurred";
+                    const formattedMessage = Array.isArray(rawMessage) ? rawMessage.join(", ") : rawMessage;
+                    setError(formattedMessage)
+                    setModal({
+                        isOpen: true,
+                        title: "Error",
+                        message: formattedMessage,
+                        type: "error"
+                    })
+                }
             })
-        } finally {
-            setLoading(false)
+        } else {
+            // Login
+            loginMutation.mutate({
+                email: form.email,
+                password: form.password
+            }, {
+                onSuccess: (data) => {
+                    setAuth(data.user, data.accessToken)
+                    router.push("/") // Redirect to dashboard or home
+                },
+                onError: (err: any) => {
+                    const rawMessage = err.response?.data?.message || err.message || "An error occurred";
+                    const formattedMessage = Array.isArray(rawMessage) ? rawMessage.join(", ") : rawMessage;
+                    setError(formattedMessage)
+                    setModal({
+                        isOpen: true,
+                        title: "Error",
+                        message: formattedMessage,
+                        type: "error"
+                    })
+                }
+            })
         }
     }
 
     const handleVerifyOtp = async (otpCode: string) => {
-        setLoading(true)
         setOtpError("")
-        try {
-            await axios.post(`${API_URL}/verify-otp`, {
-                email: form.email,
-                otp: otpCode
-            })
-            setIsOtpOpen(false)
-            setIsSuccessOpen(true)
-        } catch (err: any) {
-            const rawMessage = err.response?.data?.message || err.message || "Verification failed";
-            const formattedMessage = Array.isArray(rawMessage) ? rawMessage.join(", ") : rawMessage;
-            setOtpError(formattedMessage)
-        } finally {
-            setLoading(false)
-        }
+        verifyOtpMutation.mutate({
+            email: form.email,
+            otp: otpCode
+        }, {
+            onSuccess: () => {
+                setIsOtpOpen(false)
+                setIsSuccessOpen(true)
+            },
+            onError: (err: any) => {
+                const rawMessage = err.response?.data?.message || err.message || "Verification failed";
+                const formattedMessage = Array.isArray(rawMessage) ? rawMessage.join(", ") : rawMessage;
+                setOtpError(formattedMessage)
+            }
+        })
     }
 
     const handleGoogleAuth = () => {
