@@ -30,7 +30,7 @@ export const AuthForm = ({ mode }: { mode: "login" | "signup" }) => {
         password: '',
         confirmPassword: '',
         otp: ''
-    })
+    }) 
     
     const [isOtpOpen, setIsOtpOpen] = useState(false)
     const [isSuccessOpen, setIsSuccessOpen] = useState(false)
