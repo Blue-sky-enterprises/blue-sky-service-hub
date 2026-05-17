@@ -1,4 +1,4 @@
-import { IUserRepository, InvalidCredentialsException } from "../../domain";
+import { IUserRepository } from "../../domain";
 import { UserResponseDto } from "../dto/response";
 import { VerifyOtpDto } from "../dto/request";
 import { AuthMapper } from "../mappers";

@@ -1,6 +1,6 @@
 import { IUserRepository, User, UserAlreadyExistsException, Role } from "../../domain";
 import { RegisterDto } from "../dto/request";
-import { UserResponseDto } from "../dto/response";
+import { RegisterResponseDto } from "../dto/response";
 import { AuthMapper } from "../mappers";
 import * as bcrypt from "bcrypt";
 
@@ -25,7 +25,7 @@ export class RegisterUserUseCase {
      * @returns User response data (excluding password)
      * @throws Error if the user already exists
      */
-    async execute(register: RegisterDto): Promise<any> {
+    async execute(register: RegisterDto): Promise<RegisterResponseDto> {
         // 1. Business Rule: Email must be unique
         const existing = await this.userRepo.findByEmail(register.email);
         if (existing) {
@@ -56,6 +56,7 @@ export class RegisterUserUseCase {
             null // googleId
         ));
 
+        // eslint-disable-next-line no-console
         console.log(`\n[MOCK EMAIL] OTP for ${register.email} is: ${otp}\n`);
 
         // 4. Return DTO

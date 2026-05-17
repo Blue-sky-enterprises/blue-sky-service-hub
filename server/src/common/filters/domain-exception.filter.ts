@@ -6,32 +6,46 @@ import { PasswordMismatchException } from '../../modules/auth/domain/exceptions/
 
 @Catch()
 export class DomainExceptionFilter implements ExceptionFilter {
-    catch(exception: any, host: ArgumentsHost) {
+    catch(exception: unknown, host: ArgumentsHost): void {
         const ctx = host.switchToHttp();
         const response = ctx.getResponse<Response>();
 
         let status = HttpStatus.INTERNAL_SERVER_ERROR;
-        let message = exception.message || 'Internal server error';
+        let message = exception instanceof Error ? exception.message : 'Internal server error';
+        const errorName = exception instanceof Error ? exception.name : 'Error';
 
-        if (exception instanceof UserAlreadyExistsException || exception.constructor?.name === 'UserAlreadyExistsException') {
+        const constructorName = exception && typeof exception === 'object' && 'constructor' in exception
+            ? (exception as { constructor: { name?: string } }).constructor?.name
+            : undefined;
+
+        if (exception instanceof UserAlreadyExistsException || constructorName === 'UserAlreadyExistsException') {
             status = HttpStatus.CONFLICT;
             message = 'User already exists';
-        } else if (exception instanceof InvalidCredentialsException || exception.constructor?.name === 'InvalidCredentialsException') {
+        } else if (exception instanceof InvalidCredentialsException || constructorName === 'InvalidCredentialsException') {
             status = HttpStatus.UNAUTHORIZED;
             message = 'Invalid email or password';
-        } else if (exception instanceof PasswordMismatchException || exception.constructor?.name === 'PasswordMismatchException') {
+        } else if (exception instanceof PasswordMismatchException || constructorName === 'PasswordMismatchException') {
             status = HttpStatus.BAD_REQUEST;
             message = 'Passwords do not match';
         } else if (exception instanceof HttpException) {
             status = exception.getStatus();
-            const responseData = exception.getResponse() as any;
-            message = responseData.message || responseData;
+            const responseData = exception.getResponse();
+            if (typeof responseData === 'object' && responseData !== null) {
+                const body = responseData as Record<string, unknown>;
+                message = typeof body.message === 'string'
+                    ? body.message
+                    : Array.isArray(body.message)
+                    ? body.message.join(', ')
+                    : 'Http Exception';
+            } else {
+                message = String(responseData);
+            }
         }
 
         response.status(status).json({
             statusCode: status,
             message: message,
-            error: exception.name || 'Error',
+            error: errorName,
         });
     }
 }

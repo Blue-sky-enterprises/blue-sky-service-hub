@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { RegisterDto, LoginDto, VerifyOtpDto } from "../dto/request";
 import { UserResponseDto, AuthResponseDto, RegisterResponseDto } from "../dto/response";
-import { RegisterUserUseCase, LoginUseCase, VerifyOtpUseCase, GoogleAuthUseCase } from "../useCases";
+import { RegisterUserUseCase, LoginUseCase, VerifyOtpUseCase, GoogleAuthUseCase, GoogleAuthDto } from "../useCases";
 
 /**
  * AuthService (Application Service).
@@ -42,7 +42,7 @@ export class AuthService {
     /**
      * Proxies the Google Auth request to the specialized use case.
      */
-    async googleLogin(profile: any): Promise<AuthResponseDto> {
+    async googleLogin(profile: GoogleAuthDto): Promise<AuthResponseDto> {
         return this.googleAuthUseCase.execute(profile);
     }
 }

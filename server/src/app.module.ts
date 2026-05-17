@@ -16,7 +16,7 @@ import { RequestLoggerMiddleware } from './common/logger/request-logger.middlewa
   providers: [],
 })
 export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
+  configure(consumer: MiddlewareConsumer): void {
     consumer
       .apply(RequestLoggerMiddleware)
       .forRoutes('*');

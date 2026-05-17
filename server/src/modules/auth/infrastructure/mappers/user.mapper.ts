@@ -33,7 +33,7 @@ export class UserMapper {
      * Maps a Domain User entity to a Prisma persistence model format.
      * Useful for create/update operations.
      */
-    static toPersistence(user: User) {
+    static toPersistence(user: User): PrismaUser {
         return {
             id: user.id,
             firstName: user.firstName,

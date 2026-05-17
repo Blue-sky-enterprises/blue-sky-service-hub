@@ -1,9 +1,10 @@
 import { Controller, Post, Body, HttpCode, HttpStatus, Get, UseGuards, Req, Res } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { AuthService } from "../application";
-import { RegisterDto, LoginDto, VerifyOtpDto, UserResponseDto, AuthResponseDto, RegisterResponseDto } from "../application";
+import { RegisterDto, LoginDto, VerifyOtpDto, UserResponseDto, AuthResponseDto, RegisterResponseDto, GoogleAuthDto } from "../application";
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from "@nestjs/swagger";
 import { env } from "../../../config/env";
+import { Request, Response } from "express";
 
 /**
  * AuthController (Presentation Layer).
@@ -77,7 +78,7 @@ export class AuthController {
     @Get("google")
     @UseGuards(AuthGuard("google"))
     @ApiOperation({ summary: "Initiate Google OAuth" })
-    async googleAuth() {
+    async googleAuth(): Promise<void> {
         // Handled by Passport
     }
 
@@ -88,8 +89,8 @@ export class AuthController {
     @Get("google/callback")
     @UseGuards(AuthGuard("google"))
     @ApiOperation({ summary: "Google OAuth callback" })
-    async googleAuthRedirect(@Req() req: any, @Res() res: any) {
-        const result = await this.authService.googleLogin(req.user);
+    async googleAuthRedirect(@Req() req: Request, @Res() res: Response): Promise<void> {
+        const result = await this.authService.googleLogin(req.user as GoogleAuthDto);
         // Redirect to frontend with token
         res.redirect(`${env.CLIENT_URL}/auth/login?token=${result.accessToken}`);
     }

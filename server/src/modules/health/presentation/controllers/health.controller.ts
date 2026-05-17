@@ -1,7 +1,6 @@
 import { Controller, Get, Header } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiOkResponse, ApiHeader, ApiBearerAuth } from "@nestjs/swagger";
 import { HealthService } from "../../infrastructure/services/health.service";
-import { HealthEntity } from "../../domain/entities/health.entity";
 
 @ApiTags("Health")
 
