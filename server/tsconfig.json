@@ -10,5 +10,10 @@
     "outDir": "./dist",
     "types": ["node"],
     "skipLibCheck": true
-  }
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.config.ts"
+  ]
 }

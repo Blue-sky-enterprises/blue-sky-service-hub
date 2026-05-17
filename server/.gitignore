@@ -38,3 +38,4 @@ coverage/
 # Optional runtime files
 tmp/
 temp/
+/src/generated/prisma

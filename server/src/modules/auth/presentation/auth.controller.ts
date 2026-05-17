@@ -1,0 +1,97 @@
+import { Controller, Post, Body, HttpCode, HttpStatus, Get, UseGuards, Req, Res } from "@nestjs/common";
+import { AuthGuard } from "@nestjs/passport";
+import { AuthService } from "../application";
+import { RegisterDto, LoginDto, VerifyOtpDto, UserResponseDto, AuthResponseDto, RegisterResponseDto, GoogleAuthDto } from "../application";
+import { ApiTags, ApiOperation, ApiResponse, ApiBody } from "@nestjs/swagger";
+import { env } from "../../../config/env";
+import { Request, Response } from "express";
+
+/**
+ * AuthController (Presentation Layer).
+ *
+ * Defines the HTTP interface for authentication endpoints.
+ * Routes are prefixed with '/api/auth' (via global prefix and @Controller).
+ */
+@ApiTags("Authentication")
+@Controller("auth")
+export class AuthController {
+    constructor(private authService: AuthService) { }
+
+    /**
+     * POST /api/auth/register
+     * Registers a new user in the system.
+     */
+    @Post("register")
+    @ApiOperation({ summary: "Register a new user" })
+    @ApiBody({ type: RegisterDto })
+    @ApiResponse({ 
+        status: 201, 
+        description: "User successfully registered.",
+        type: UserResponseDto 
+    })
+    @ApiResponse({ status: 400, description: "Bad Request - Validation failed." })
+    @ApiResponse({ status: 409, description: "Conflict - User already exists." })
+    async register(@Body() body: RegisterDto): Promise<RegisterResponseDto> {
+        return this.authService.register(body);
+    }
+
+    /**
+     * POST /api/auth/verify-otp
+     * Verifies the OTP sent to user email.
+     */
+    @Post("verify-otp")
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: "Verify OTP for user registration" })
+    @ApiBody({ type: VerifyOtpDto })
+    @ApiResponse({ 
+        status: 200, 
+        description: "User successfully verified.",
+        type: UserResponseDto 
+    })
+    @ApiResponse({ status: 400, description: "Bad Request - Invalid OTP." })
+    async verifyOtp(@Body() body: VerifyOtpDto): Promise<UserResponseDto> {
+        return this.authService.verifyOtp(body);
+    }
+
+    /**
+     * POST /api/auth/login
+     * Authenticates a user and returns their profile.
+     */
+    @Post("login")
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: "Authenticate user" })
+    @ApiBody({ type: LoginDto })
+    @ApiResponse({ 
+        status: 200, 
+        description: "User successfully authenticated.",
+        type: AuthResponseDto 
+    })
+    @ApiResponse({ status: 401, description: "Unauthorized - Invalid credentials." })
+    async login(@Body() body: LoginDto): Promise<AuthResponseDto> {
+        return this.authService.login(body);
+    }
+
+    /**
+     * GET /api/auth/google
+     * Initiates Google OAuth flow.
+     */
+    @Get("google")
+    @UseGuards(AuthGuard("google"))
+    @ApiOperation({ summary: "Initiate Google OAuth" })
+    async googleAuth(): Promise<void> {
+        // Handled by Passport
+    }
+
+    /**
+     * GET /api/auth/google/callback
+     * Callback for Google OAuth.
+     */
+    @Get("google/callback")
+    @UseGuards(AuthGuard("google"))
+    @ApiOperation({ summary: "Google OAuth callback" })
+    async googleAuthRedirect(@Req() req: Request, @Res() res: Response): Promise<void> {
+        const result = await this.authService.googleLogin(req.user as GoogleAuthDto);
+        // Redirect to frontend with token
+        res.redirect(`${env.CLIENT_URL}/auth/login?token=${result.accessToken}`);
+    }
+}
