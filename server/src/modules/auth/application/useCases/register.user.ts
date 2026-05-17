@@ -25,7 +25,7 @@ export class RegisterUserUseCase {
      * @returns User response data (excluding password)
      * @throws Error if the user already exists
      */
-    async execute(register: RegisterDto): Promise<UserResponseDto> {
+    async execute(register: RegisterDto): Promise<any> {
         // 1. Business Rule: Email must be unique
         const existing = await this.userRepo.findByEmail(register.email);
         if (existing) {
@@ -59,6 +59,10 @@ export class RegisterUserUseCase {
         console.log(`\n[MOCK EMAIL] OTP for ${register.email} is: ${otp}\n`);
 
         // 4. Return DTO
-        return AuthMapper.toResponse(user);
+        return {
+            message: "Registration successful. Please verify your email.",
+            otp,
+            user: AuthMapper.toResponse(user)
+        };
     }
 }

@@ -5,3 +5,5 @@ export * from './AuthRightPanel';
 export * from './AuthLeftPanel';
 export * from './PasswordStrength';
 export * from './GoogleIcon';
+export * from './OtpModal';
+export * from './OtpSuccessModal';

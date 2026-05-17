@@ -2,13 +2,15 @@
 
 import { motion, AnimatePresence } from "framer-motion"
 import { CheckCircle2, X } from "lucide-react"
-import { useRouter } from "next/navigation"
 
-export const OtpSuccessModal = () => {
-    const router = useRouter()
+type OtpSuccessModalProps = {
+    email?: string
+}
 
+export const OtpSuccessModal = ({ email }: OtpSuccessModalProps) => {
     const handleClose = () => {
-        router.push("/auth/login")
+        const targetUrl = email ? `/auth/login?email=${encodeURIComponent(email)}` : "/auth/login"
+        window.location.href = targetUrl
     }
 
     return (
@@ -41,6 +43,7 @@ export const OtpSuccessModal = () => {
                 >
                     {/* close */}
                     <button
+                        type="button"
                         onClick={handleClose}
                         className="absolute right-4 top-4 text-bs-secondary hover:text-bs-primary"
                     >
@@ -60,6 +63,7 @@ export const OtpSuccessModal = () => {
                     </p>
 
                     <button
+                        type="button"
                         onClick={handleClose}
                         className="bs-btn-primary w-full"
                     >

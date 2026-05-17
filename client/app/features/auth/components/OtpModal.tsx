@@ -9,6 +9,8 @@ type OtpModalProps = {
     onClose: () => void
     onVerify: (otp: string) => void
     length?: number
+    mockOtp?: string
+    error?: string
 }
 
 export const OtpModal = ({
@@ -16,6 +18,8 @@ export const OtpModal = ({
     onClose,
     onVerify,
     length = 6,
+    mockOtp,
+    error,
 }: OtpModalProps) => {
     const [otp, setOtp] = useState<string[]>(Array(length).fill(""))
     const inputsRef = useRef<Array<HTMLInputElement | null>>([])
@@ -74,6 +78,7 @@ export const OtpModal = ({
                     >
                         {/* close */}
                         <button
+                            type="button"
                             onClick={onClose}
                             className="absolute right-4 top-4 text-bs-secondary hover:text-bs-primary"
                         >
@@ -86,7 +91,7 @@ export const OtpModal = ({
                         </h2>
 
                         <p className="text-sm text-bs-secondary dark:text-[#A09DC0] mt-1">
-                            Enter the 6-digit code sent to your email
+                            Enter the 6-digit code sent to your email {mockOtp && `(Mock OTP for testing: ${mockOtp})`}
                         </p>
 
                         {/* OTP inputs */}
@@ -116,13 +121,29 @@ export const OtpModal = ({
                         {/* resend */}
                         <p className="text-xs text-center mt-4 text-bs-secondary">
                             Didn’t receive code?{" "}
-                            <button className="text-bs-accent font-medium">
+                            <button type="button" className="text-bs-accent font-medium">
                                 Resend OTP
                             </button>
                         </p>
 
+                        {mockOtp && (
+                            <div className="mt-4 p-3 bg-[#7C5CFC]/10 border border-[#7C5CFC]/30 rounded-bs-md text-center">
+                                <p className="text-xs text-[#7C5CFC] dark:text-[#9B7DFF] font-medium">Mock OTP for testing:</p>
+                                <p className="text-2xl font-mono font-extrabold text-[#7C5CFC] dark:text-[#9B7DFF] tracking-[0.5em] mt-1 pl-[0.5em]">
+                                    {mockOtp}
+                                </p>
+                            </div>
+                        )}
+
+                        {error && (
+                            <p className="text-sm text-red-500 text-center mt-4 font-medium bg-red-500/10 border border-red-500/20 py-2 rounded-bs-md">
+                                {error}
+                            </p>
+                        )}
+
                         {/* action */}
                         <button
+                            type="button"
                             onClick={() => onVerify(otp.join(""))}
                             className="bs-btn-primary w-full mt-6"
                         >

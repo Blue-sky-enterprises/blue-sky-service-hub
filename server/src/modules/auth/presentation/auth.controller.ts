@@ -1,7 +1,7 @@
 import { Controller, Post, Body, HttpCode, HttpStatus, Get, UseGuards, Req, Res } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { AuthService } from "../application";
-import { RegisterDto, LoginDto, VerifyOtpDto, UserResponseDto, AuthResponseDto } from "../application";
+import { RegisterDto, LoginDto, VerifyOtpDto, UserResponseDto, AuthResponseDto, RegisterResponseDto } from "../application";
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from "@nestjs/swagger";
 import { env } from "../../../config/env";
 
@@ -30,7 +30,7 @@ export class AuthController {
     })
     @ApiResponse({ status: 400, description: "Bad Request - Validation failed." })
     @ApiResponse({ status: 409, description: "Conflict - User already exists." })
-    async register(@Body() body: RegisterDto): Promise<UserResponseDto> {
+    async register(@Body() body: RegisterDto): Promise<RegisterResponseDto> {
         return this.authService.register(body);
     }
 

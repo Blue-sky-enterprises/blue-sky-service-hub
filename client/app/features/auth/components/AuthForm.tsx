@@ -1,22 +1,33 @@
 'use client'
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ArrowRight, KeyRound } from "lucide-react"
 import { GoogleIcon } from "@/app/features/auth/components/GoogleIcon"
 import { Input } from "@/app/shared/ui/input"
 import { PasswordInput } from "./PasswordInput"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import axios from "axios"
 import { useAuthStore } from "@/app/store/authStore"
+import { ResponseModal } from "@/app/shared/components"
+import { OtpModal } from "./OtpModal"
+import { OtpSuccessModal } from "./OtpSuccessModal"
 
 const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/auth`;
 
 export const AuthForm = ({ mode }: { mode: "login" | "signup" }) => {
     const router = useRouter()
+    const searchParams = useSearchParams()
     const { setAuth } = useAuthStore()
 
     const isSignup = mode === "signup"
+
+    useEffect(() => {
+        const emailParam = searchParams.get("email")
+        if (emailParam) {
+            setForm(prev => ({ ...prev, email: decodeURIComponent(emailParam) }))
+        }
+    }, [searchParams])
 
     const [form, setForm] = useState({
         firstName: '',
@@ -27,9 +38,20 @@ export const AuthForm = ({ mode }: { mode: "login" | "signup" }) => {
         otp: ''
     })
     
-    const [showOtp, setShowOtp] = useState(false)
+    const [isOtpOpen, setIsOtpOpen] = useState(false)
+    const [isSuccessOpen, setIsSuccessOpen] = useState(false)
+    const [backendOtp, setBackendOtp] = useState("")
+    const [otpError, setOtpError] = useState("")
     const [loading, setLoading] = useState(false)
+    
+    // We keep error for small inline errors, but use modal for main responses
     const [error, setError] = useState("")
+    const [modal, setModal] = useState<{isOpen: boolean, title: string, message: string, type: "success" | "error"}>({
+        isOpen: false,
+        title: "",
+        message: "",
+        type: "success"
+    })
 
     const set = (k: keyof typeof form) =>
         (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -42,25 +64,20 @@ export const AuthForm = ({ mode }: { mode: "login" | "signup" }) => {
         setLoading(true)
 
         try {
-            if (showOtp) {
-                // Verify OTP
-                await axios.post(`${API_URL}/verify-otp`, {
-                    email: form.email,
-                    otp: form.otp
-                })
-                router.push("/auth/login")
-            } else if (isSignup) {
+            if (isSignup) {
                 // Register
                 if (form.password !== form.confirmPassword) {
                     throw new Error("Passwords do not match")
                 }
-                await axios.post(`${API_URL}/register`, {
+                const res = await axios.post(`${API_URL}/register`, {
                     firstName: form.firstName,
                     lastName: form.lastName,
                     email: form.email,
                     password: form.password
                 })
-                setShowOtp(true)
+                console.log("Registration response data:", res.data)
+                setBackendOtp(res.data.otp)
+                setIsOtpOpen(true)
             } else {
                 // Login
                 const res = await axios.post(`${API_URL}/login`, {
@@ -71,7 +88,34 @@ export const AuthForm = ({ mode }: { mode: "login" | "signup" }) => {
                 router.push("/") // Redirect to dashboard or home
             }
         } catch (err: any) {
-            setError(err.response?.data?.message || err.message || "An error occurred")
+            const rawMessage = err.response?.data?.message || err.message || "An error occurred";
+            const formattedMessage = Array.isArray(rawMessage) ? rawMessage.join(", ") : rawMessage;
+            setError(formattedMessage)
+            setModal({
+                isOpen: true,
+                title: "Error",
+                message: formattedMessage,
+                type: "error"
+            })
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const handleVerifyOtp = async (otpCode: string) => {
+        setLoading(true)
+        setOtpError("")
+        try {
+            await axios.post(`${API_URL}/verify-otp`, {
+                email: form.email,
+                otp: otpCode
+            })
+            setIsOtpOpen(false)
+            setIsSuccessOpen(true)
+        } catch (err: any) {
+            const rawMessage = err.response?.data?.message || err.message || "Verification failed";
+            const formattedMessage = Array.isArray(rawMessage) ? rawMessage.join(", ") : rawMessage;
+            setOtpError(formattedMessage)
         } finally {
             setLoading(false)
         }
@@ -79,42 +123,6 @@ export const AuthForm = ({ mode }: { mode: "login" | "signup" }) => {
 
     const handleGoogleAuth = () => {
         window.location.href = `${API_URL}/google`
-    }
-
-    if (showOtp) {
-        return (
-            <motion.form
-                className="space-y-4"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, ease: "easeOut" }}
-            >
-                <div className="text-center mb-4">
-                    <p className="text-sm text-bs-dim">
-                        We sent a 6-digit code to <strong>{form.email}</strong>.
-                    </p>
-                </div>
-                <Input 
-                    placeholder="Enter 6-digit OTP" 
-                    value={form.otp}
-                    onChange={set("otp")}
-                    maxLength={6}
-                    className="text-center text-lg tracking-widest font-mono"
-                />
-                {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-                <motion.button
-                    className="bs-btn-primary w-full flex items-center justify-center gap-2 mt-4"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    type="button"
-                    onClick={handleSubmit}
-                    disabled={loading || form.otp.length < 6}
-                >
-                    {loading ? "Verifying..." : "Verify & Continue"}
-                    <KeyRound size={16} />
-                </motion.button>
-            </motion.form>
-        )
     }
 
     return (
@@ -216,6 +224,21 @@ export const AuthForm = ({ mode }: { mode: "login" | "signup" }) => {
                 {loading ? "Please wait..." : (isSignup ? "Get Started" : "Login")}
                 {!loading && <ArrowRight size={16} />}
             </motion.button>
+            <ResponseModal 
+                isOpen={modal.isOpen}
+                onClose={() => setModal(prev => ({ ...prev, isOpen: false }))}
+                title={modal.title}
+                message={modal.message}
+                type={modal.type}
+            />
+            <OtpModal
+                open={isOtpOpen}
+                onClose={() => setIsOtpOpen(false)}
+                onVerify={handleVerifyOtp}
+                mockOtp={backendOtp}
+                error={otpError}
+            />
+            {isSuccessOpen && <OtpSuccessModal email={form.email} />}
         </motion.form>
     )
 }
